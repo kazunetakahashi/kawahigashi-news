@@ -7,6 +7,7 @@
 
 class News
   require 'addressable/uri'
+  require 'twitter-text'
 
   attr_accessor :date, :text, :urls
 
@@ -37,6 +38,9 @@ class News
         @urls << link.attributes['href'].value
       end
     }
+    @urls.map!{|url|
+      News.parse_url(url)
+    }
     # p @urls
     return true
   end
@@ -57,59 +61,38 @@ class News
     return ans
   end
 
-  def parse_url()
-    ans = []
-    @urls.each{|url|
-      ans << News.parse_url(url)
-    }
-    @urls = ans
-  end
-
-  def byte_count()
-    ans = 270
-    if @date
-      ans -= 7
-    end
-    ans -= [@urls.size, 4].min * 12
-    return ans
-  end
-
-  def cut_text()
-    # https://qiita.com/yuip/items/a3c2048a374c151c8f72 を参考にした。
-    if !(@text) || @text == ""
-      return ""
-    end
-    ub = @text.size + 1
-    lb = 0
-    bc = byte_count
-    while ub - lb > 1
-      t = (ub + lb) / 2
-      temp = @text[0...t].encode("EUC-JP").bytesize
-      if temp > bc
-        ub = t
-      else
-        lb = t
-      end
-    end
-    return @text[0...lb]
-  end
-
-  def to_s()
+  def make_str(t)
     ans = ""
     if @date
       ans += @date.strftime("%m/%d: ")
     end
-    txt = cut_text()
-    ans += txt
-    if txt != @text
+    ans += @text[0...t]
+    if t < @text.size
       ans += "…"
     end
-    parse_url()
     urls_size = [@urls.size, 4].min
     for i in 0...urls_size
       ans += " " + @urls[i]
     end
     return ans
+  end
+
+  def to_s()
+    if !(@text) || @text == ""
+      return ""
+    end
+    ub = @text.size + 1
+    lb = 0
+    while ub - lb > 1
+      t = (ub + lb) / 2
+      ans = make_str(t)
+      if Twitter::TwitterText::Validation.parse_tweet(ans)[:valid]
+        lb = t
+      else
+        ub = t
+      end
+    end
+    return make_str(lb)
   end
 
 end

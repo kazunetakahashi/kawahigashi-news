@@ -10,14 +10,13 @@ class Kawahigashi
   require 'open-uri'
   require 'nokogiri'
 
-  attr_accessor :year, :components
+  attr_accessor :year, :components, :texts
 
-  URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
-
-  def initialize()
+  def initialize(url)
     doc = nil
     begin
-      doc = Nokogiri::HTML(open(URL))
+      doc = Nokogiri::HTML(open(url, 'r',
+        :external_encoding => 'EUC-JP', :internal_encoding => 'UTF-8'))
     rescue
       # 何もしない
     end
@@ -46,6 +45,11 @@ class Kawahigashi
     if @components.nil? || @components.empty?
       return nil
     end
+    @texts = []
+    @components.each{|news|
+      @texts << news.to_s
+    }
+    return true
   end
 
 end
