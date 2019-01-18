@@ -1,5 +1,10 @@
 secret/
 sample/
+nohup.out
+start.sh
+end.sh
+texts.txt
+year.txt
 
 ### https://raw.github.com/github/gitignore/f57304e9762876ae4c9b02867ed0cb887316387e/Ruby.gitignore
 

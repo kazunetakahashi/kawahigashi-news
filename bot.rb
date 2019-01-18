@@ -12,9 +12,9 @@ class Bot
   load './news.rb'
   load './kawahigashi.rb'
 
-  attr_accessor :client, :texts, :kawahigashi
+  attr_accessor :client, :texts, :year, :kawahigashi
 
-  URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
+  URL = "sample/news_update.html"
   # URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
 
   def initialize()
@@ -27,28 +27,77 @@ class Bot
     read_texts()
   end
 
+  def wait()
+    sleep(3.0)
+  end
+
   def work()
     read_texts()
     @kawahigashi = Kawahigashi.new(URL)
-    delete_tweets()
-    make_tweets()
+    if !(@kawahigashi.valid?)
+      puts "not valid"
+      return
+    end
+    if @texts.nil? || @year.nil?
+      # 何もしない
+    elsif @year != @kawahigashi.year
+      make_tweets()
+    else
+      delete_tweets()
+      make_tweets()
+    end
     @texts = @kawahigashi.texts
     write_texts()
   end
 
   def delete_tweets()
-    tweets = @client.user_timeline("kawahigashinews", count: 100)
+    begin
+      tweets = @client.user_timeline("kawahigashinews", count: 100)
+      wait()
+    rescue
+      return
+    end
+    dif = @texts - @kawahigashi.texts
+    dif.each{|txt|
+      prefix = txt[0...15]
+      tweets.each{|tweet|
+        if tweet.text.start_with?(prefix)
+          begin
+            client.destroy_tweet(tweet.id)
+            puts "destroy: #{tweet.text}"
+            wait()
+          rescue
+            # 何もしない
+          end
+          break
+        end
+      }
+    }
   end
 
   def make_tweets()
+    dif = @kawahigashi.texts - @texts
+    dif.reverse.each{|txt|
+      client.update(txt)
+      puts "update: #{txt}"
+      wait()
+    }
   end
 
   def read_texts()
+    @year = nil
     @texts = []
     path = File.expand_path("../texts.txt", __FILE__)
     if FileTest.exist?(path)
       open(path) {|input|
         @texts = eval(input.read.to_s)
+      }
+    end
+    path = File.expand_path("../year.txt", __FILE__)
+    if FileTest.exist?(path)
+      open(path) {|input|
+        @year = eval(input.read.to_s)
+        @year = @year.to_i
       }
     end
   end
@@ -58,7 +107,10 @@ class Bot
     open(path, 'w') {|output|
       output.write(@texts.to_s)
     }
+    path = File.expand_path("../year.txt", __FILE__)
+    open(path, 'w') {|output|
+      output.write(@year.to_i)
+    }
   end
-
 
 end

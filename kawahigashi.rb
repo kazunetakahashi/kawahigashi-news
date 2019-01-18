@@ -13,17 +13,18 @@ class Kawahigashi
   attr_accessor :year, :components, :texts
 
   def initialize(url)
+    @year = nil
+    @components = nil
+    @texts = []
     doc = nil
     begin
-      doc = Nokogiri::HTML(open(url, 'r',
-        :external_encoding => 'EUC-JP', :internal_encoding => 'UTF-8'))
+      doc = Nokogiri::HTML(open(url))
     rescue
       # 何もしない
     end
     if doc.nil?
       return nil
     end
-    @year = nil
     x = doc.xpath("/html/body/h1")
     if x && m = x.text.match(/(\d{4})年/)
       @year = m[1].to_i
@@ -31,7 +32,6 @@ class Kawahigashi
     if @year.nil?
       return nil
     end
-    @components = nil
     x = doc.xpath("/html/body/p")
     if x
       @components = []
@@ -45,11 +45,14 @@ class Kawahigashi
     if @components.nil? || @components.empty?
       return nil
     end
-    @texts = []
     @components.each{|news|
       @texts << news.to_s
     }
-    return true
+  end
+
+  def valid?
+    !(@year.nil? || @components.nil? || @components.empty? ||
+       @texts.nil? || @texts.empty?)
   end
 
 end
