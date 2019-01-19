@@ -9,8 +9,8 @@ class Bot
   require 'twitter'
   require './loadkey.rb'
   include LoadKey
-  load './news.rb'
-  load './kawahigashi.rb'
+  require './news.rb'
+  require './kawahigashi.rb'
 
   attr_accessor :client, :texts, :year, :kawahigashi
 

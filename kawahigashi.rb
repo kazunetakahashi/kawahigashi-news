@@ -6,7 +6,7 @@
 #
 
 class Kawahigashi
-  load './news.rb'
+  require './news.rb'
   require 'open-uri'
   require 'nokogiri'
 
