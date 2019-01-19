@@ -12,6 +12,6 @@ include Clockwork
 
 @bot = Bot.new()
 
-every(10.minutes, 'work') {
+every(1.minutes, 'work') {
   @bot.work()
 }

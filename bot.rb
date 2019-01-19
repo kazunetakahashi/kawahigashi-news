@@ -14,8 +14,8 @@ class Bot
 
   attr_accessor :client, :texts, :year, :kawahigashi
 
-  URL = "sample/news_update.html"
-  # URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
+  # URL = "sample/news_update.html"
+  URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
 
   def initialize()
     @client = Twitter::REST::Client.new {|config|
@@ -40,6 +40,7 @@ class Bot
     end
     if @texts.nil? || @year.nil?
       # 何もしない
+      @year = Time.now.year
     elsif @year != @kawahigashi.year
       make_tweets()
     else
