@@ -18,7 +18,8 @@ class Kawahigashi
     @texts = []
     doc = nil
     begin
-      doc = Nokogiri::HTML(open(url))
+      page = URI.parse(url).read
+      doc = Nokogiri::HTML(page, url, "EUC-JP")
     rescue
       # 何もしない
     end

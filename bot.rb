@@ -15,7 +15,7 @@ class Bot
   attr_accessor :client, :texts, :year, :kawahigashi
 
   # URL = "sample/news_update.html"
-  URL = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
+  URL = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
 
   def initialize()
     @client = Twitter::REST::Client.new {|config|
