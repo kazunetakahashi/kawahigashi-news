@@ -15,12 +15,14 @@ class News
     @urls = []
   end
 
-  def make_news(para)
+  def make_news(para, type)
     str = para.text
-    if str[0] == "・"
-      str = str[1...-1]
-    else
-      return nil
+    if type == :news
+      if str[0] == "・"
+        str = str[1...-1]
+      else
+        return nil
+      end
     end
     str = str.gsub(/[\r\n]/, "").strip
     date_reg_exp = /\((\d{1,2})\/(\d{1,2})\/(\d{4})\)$/
@@ -31,6 +33,9 @@ class News
     end
     str = str.gsub(date_reg_exp, "").strip
     @text = str
+    if type == :misc
+      @text = "『" + @text + "』"
+    end
     # p @text
     @urls = []
     para.css('a').each{|link|
@@ -56,7 +61,7 @@ class News
     ans.gsub!(/@/, "%40")
     ans.gsub!(/\.$/, "%2E")
     if !uri.scheme
-      ans = "http://www.ms.u-tokyo.ac.jp/~yasuyuki/" + ans
+      ans = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/" + ans
     end
     return ans
   end

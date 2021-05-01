@@ -11,11 +11,14 @@ class Bot
   include LoadKey
   require './news.rb'
   require './kawahigashi.rb'
+  require './misc.rb'
 
-  attr_accessor :client, :texts, :year, :kawahigashi
+  attr_accessor :client, :texts, :year, :kawahigashi, :misc
 
-  # URL = "sample/news_update.html"
-  URL = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
+  URL_NEWS = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm"
+  URL_MISC = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/misc.htm"
+  # URL_NEWS = "sample/news_update.html"
+  # URL_MISC = "sample/misc_update.html"
 
   def initialize()
     @client = Twitter::REST::Client.new {|config|
@@ -33,9 +36,7 @@ class Bot
 
   def work()
     read_texts()
-    @kawahigashi = Kawahigashi.new(URL)
-    if !(@kawahigashi.valid?)
-      puts "not valid"
+    if !refresh()
       return
     end
     if @texts.nil? || @year.nil?
@@ -43,28 +44,45 @@ class Bot
       @year = Time.now.year
     elsif @year != @kawahigashi.year
       make_tweets()
+      @year = @kawahigashi.year
     else
       delete_tweets()
       make_tweets()
     end
-    @texts = @kawahigashi.texts
+    update_texts()
     write_texts()
   end
 
+  def refresh()
+    @kawahigashi = Kawahigashi.new(URL_NEWS)
+    if !(@kawahigashi.valid?)
+      puts "Kawahigashi is not valid."
+      return false
+    end
+    wait()
+    @misc = Misc.new(URL_MISC)
+    if !(@misc.valid?)
+      puts "Misc is not valid."
+      return false
+    end
+    return true
+  end
+
   def delete_tweets()
+    tweets = []
     begin
       tweets = @client.user_timeline("kawahigashinews", count: 100)
       wait()
     rescue
       return
     end
-    dif = @texts - @kawahigashi.texts
+    dif = @texts - (@kawahigashi.texts + @misc.texts)
     dif.each{|txt|
       prefix = txt[0...15]
       tweets.each{|tweet|
         if tweet.text.start_with?(prefix)
           begin
-            client.destroy_tweet(tweet.id)
+            @client.destroy_tweet(tweet.id)
             puts "destroy: #{tweet.text}"
             wait()
           rescue
@@ -77,9 +95,10 @@ class Bot
   end
 
   def make_tweets()
-    dif = @kawahigashi.texts - @texts
+    dif = (@kawahigashi.texts + @misc.texts) - @texts
     dif.reverse.each{|txt|
-      client.update(txt)
+      # ここは begin/rescue しない。エラー出たら再度巡回したときにもう一度。
+      @client.update(txt)
       puts "update: #{txt}"
       wait()
     }
@@ -101,6 +120,10 @@ class Bot
         @year = @year.to_i
       }
     end
+  end
+
+  def update_texts()
+    @texts = @kawahigashi.texts + @misc.texts
   end
 
   def write_texts()
