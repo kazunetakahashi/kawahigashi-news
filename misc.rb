@@ -1,19 +1,18 @@
 #
-# File    : kawahigashi.rb
+# File    : misc.rb
 # Author  : Kazune Takahashi
-# Created : 1/16/2019, 10:54:10 PM
+# Created : 5/1/2021, 2:52:12 PM
 # Powered by Visual Studio Code
 #
 
-class Kawahigashi
+class Misc
   require './news.rb'
   require 'open-uri'
   require 'nokogiri'
 
-  attr_accessor :year, :components, :texts
+  attr_accessor :components, :texts
 
   def initialize(url)
-    @year = nil
     @components = nil
     @texts = []
     doc = nil
@@ -27,19 +26,12 @@ class Kawahigashi
     if doc.nil?
       return nil
     end
-    x = doc.xpath("/html/body/h1")
-    if x && m = x.text.match(/(\d{4})年/)
-      @year = m[1].to_i
-    end
-    if @year.nil?
-      return nil
-    end
-    x = doc.xpath("/html/body/p")
+    x = doc.xpath("/html/body/ul/li")
     if x
       @components = []
       x.each{|para|
         n = News.new()
-        if n.make_news(para, :news)
+        if n.make_news(para, :misc)
           @components << n
         end
       }
@@ -47,13 +39,14 @@ class Kawahigashi
     if @components.nil? || @components.empty?
       return nil
     end
+    @components.reverse!
     @components.each{|news|
       @texts << news.to_s
     }
   end
 
   def valid?
-    !(@year.nil? || @components.nil? || @components.empty? ||
+    !(@components.nil? || @components.empty? ||
        @texts.nil? || @texts.empty?)
   end
 
