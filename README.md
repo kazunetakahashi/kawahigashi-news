@@ -4,15 +4,15 @@ Twitter の [@kawahigashinews](https://twitter.com/kawahigashinews) の中身
 
 ## 概要
 
-[河東セミナーニュース](http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm) を 10 分ごとにクロールして、新しいニュースがあったらツイートします。
+[河東セミナーニュース](http://www.ms.u-tokyo.ac.jp/~yasuyuki/news.htm)と[どうでもよい記事](https://www.ms.u-tokyo.ac.jp/~yasuyuki/misc.htm)を 10 分ごとにクロールして、記述の変更点があったらツイートします。
 
 ## 仕様
 
-詳細は、ソースコードか、または、[私の記事](http://kazune-lab.net/diary/2019/01/19/kawahigashi/)をご覧になってください。
+詳細は、ソースコードか、または、[仕様をまとめたドキュメント](documents/2019-01-19-specification.md)をご覧になってください。
 
 ## 免責事項
 
-私が **勝手に作った非公式 bot** ですので、例えば河東教授から怒られたらやめます。 bot については、私にお問い合わせください。この bot のことで河東教授に迷惑をかけるようなことがないようにお願いします。逆に、ニュースの中身は私はよくわかりませんので、作用素環論の人に聞いてください。
+もともとは [@kazunetakahashi](https://github.com/kazunetakahashi) が **勝手に作った非公式 bot** ですので、例えば河東教授から怒られたらやめます。 bot については、このリポジトリの [Issues](https://github.com/kazunetakahashi/kawahigashi-news/issues) にお問い合わせください。もちろん [Pull requests](https://github.com/kazunetakahashi/kawahigashi-news/pulls) も歓迎します。この bot のことで河東教授に迷惑をかけるようなことがないようにお願いします。逆に、ニュースの中身は、作用素環論や数理物理学の人に聞いてください。
 
 技術的には、以下の 2 つが避けられません。
 
