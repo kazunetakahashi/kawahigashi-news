@@ -36,6 +36,7 @@ class News
     if type == :misc
       @text = "『" + @text + "』"
     end
+    @text.gsub!(/\*/, "＊")
     # p @text
     @urls = []
     para.css('a').each{|link|
@@ -60,6 +61,7 @@ class News
     ans.gsub!(/'/, "%27")
     ans.gsub!(/@/, "%40")
     ans.gsub!(/\.$/, "%2E")
+    ans.gsub!(/\*$/, "%2A")
     if !uri.scheme
       ans = "https://www.ms.u-tokyo.ac.jp/~yasuyuki/" + ans
     end
