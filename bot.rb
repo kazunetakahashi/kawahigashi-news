@@ -7,11 +7,10 @@
 
 class Bot
   require 'twitter'
-  require './loadkey.rb'
-  include LoadKey
   require './news.rb'
   require './kawahigashi.rb'
   require './misc.rb'
+	require './v2.rb'
 
   attr_accessor :client, :texts, :year, :kawahigashi, :misc
 
@@ -21,12 +20,6 @@ class Bot
   # URL_MISC = "sample/misc_update.html"
 
   def initialize()
-    @client = Twitter::REST::Client.new {|config|
-      config.consumer_key = load_key("twitter-consumer-key.txt")
-      config.consumer_secret = load_key("twitter-consumer-secret.txt")
-      config.access_token = load_key("twitter-access-token.txt")
-      config.access_token_secret = load_key("twitter-access-token-secret.txt")
-    }
     read_texts()
   end
 
@@ -46,7 +39,8 @@ class Bot
       make_tweets()
       @year = @kawahigashi.year
     else
-      delete_tweets()
+			# TODO: V2対応が必要だが復旧を優先するためコメントアウト
+      #delete_tweets()
       make_tweets()
     end
     update_texts()
@@ -98,7 +92,7 @@ class Bot
     dif = (@kawahigashi.texts + @misc.texts) - @texts
     dif.reverse.each{|txt|
       # ここは begin/rescue しない。エラー出たら再度巡回したときにもう一度。
-      @client.update(txt)
+      TwitterV2::tweet(txt)
       puts "update: #{txt}"
       wait()
     }
